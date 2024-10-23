@@ -18,7 +18,7 @@ This project provides a customizable command handler for Discord bots using the 
 Each command can have:
 - A prefix (root-level only).
 - A command name and optional aliases.
-- A short and long description for documentation.
+- A short and long description for help generation.
 - Pre-run and post-run hooks.
 - Permission groups to restrict access.
 - Flag parsing using `pflag`.
