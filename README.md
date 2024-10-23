@@ -9,7 +9,9 @@ This project provides a customizable command handler for Discord bots using the 
 - **Flag Parsing**: Uses `pflag` for handling command-specific flags CLI style.
 - **Command Hooks**: Supports pre-run and post-run command hooks.
 - **Permission Groups**: Command permission groups only allow members with the correct permission to execute and see commands in the help embed.
-- **Hidden Commands**: Commands can be hidden from users in the help embed while still allowing execution of the command. 
+- **Hidden Commands**: Commands can be hidden from users in the help embed while still allowing execution of the command.
+
+There is no support for slash commands. 
 
 ## Usage
 
