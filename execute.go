@@ -28,7 +28,9 @@ func (c *Command) ProcessMessage(s *discordgo.Session, m *discordgo.MessageCreat
 		// Check if it is potentially a valid command.
 		return nil
 	}
-	args := strings.Fields(m.Content)
+	// this is simply so iOS users don't run into issues with -- being autoreplaced with —
+	fixedIosString := strings.Replace(m.Content, "—", "--", -1)
+	args := strings.Fields(fixedIosString)
 	args[0] = args[0][1:]
 	return c.execute(args, s, m, groups, nil)
 }
