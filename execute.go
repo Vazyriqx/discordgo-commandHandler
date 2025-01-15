@@ -37,12 +37,11 @@ func (c *Command) ProcessMessage(s *discordgo.Session, m *discordgo.MessageCreat
 
 // Executes the commands. You should be using processess message in most cases
 func (c *Command) execute(args []string, s *discordgo.Session, m *discordgo.MessageCreate, groups []string, flags *flag.FlagSet) error {
-	defer c.resetFlags() // Make sure flags are reset when leaving a command
+	defer c.resetFlags()
 
 	cmdName := args[0]
 	args = args[1:]
 
-	// TO BE IMPROVED
 	if cmdName == "help" {
 		generateHelpEmbed(c, groups)
 		s.ChannelMessageSendEmbed(m.ChannelID, &c.HelpEmbed)
@@ -85,7 +84,8 @@ func (c *Command) execute(args []string, s *discordgo.Session, m *discordgo.Mess
 			return err
 		}
 
-		if err := validateArgs(cmd, args); err != nil {
+		if err := cmd.Args(cmd, args, s, m); err != nil {
+			s.ChannelMessageSend(m.ChannelID, err.Error())
 			return err
 		}
 
@@ -118,17 +118,52 @@ func runHooks(hooks []RunE, cmd *Command, args []string, s *discordgo.Session, m
 	return nil
 }
 
-func validateArgs(cmd *Command, args []string) error {
-	if cmd.MinArgs != 0 && len(args) < cmd.MinArgs {
-		return fmt.Errorf("too few arguments")
-	}
-	if cmd.MaxArgs != 0 && len(args) > cmd.MaxArgs {
-		return fmt.Errorf("too many arguments")
-	}
-	if cmd.ExactArgs != 0 && len(args) != cmd.ExactArgs {
-		return fmt.Errorf("incorrect number of arguments")
+// return an error if any args are present
+func NoArgs(cmd *Command, args []string, s *discordgo.Session, m *discordgo.MessageCreate) error {
+	if len(args) != 0 {
+		return fmt.Errorf("command doesn't accept args")
 	}
 	return nil
+}
+
+// return an error if the number of args is not exactly equal to n
+func ExactArgs(n int) ArgsValidator {
+	return func(cmd *Command, args []string, s *discordgo.Session, m *discordgo.MessageCreate) error {
+		if len(args) != n {
+			return fmt.Errorf("command accepts %d arg(s), recieved %d", n, len(args))
+		}
+		return nil
+	}
+}
+
+// returns an error if there are not at least n args
+func MinimumArgs(n int) ArgsValidator {
+	return func(cmd *Command, args []string, s *discordgo.Session, m *discordgo.MessageCreate) error {
+		if len(args) < n {
+			return fmt.Errorf("command accepts at least %d arg(s), recieved %d", n, len(args))
+		}
+		return nil
+	}
+}
+
+// returns an error if there are more than n args
+func MaximumArgs(n int) ArgsValidator {
+	return func(cmd *Command, args []string, s *discordgo.Session, m *discordgo.MessageCreate) error {
+		if len(args) > n {
+			return fmt.Errorf("command accepts up to %d arg(s), recieved %d", n, len(args))
+		}
+		return nil
+	}
+}
+
+// returns an error if there are not between and including min and max args
+func RangeArgs(min, max int) ArgsValidator {
+	return func(cmd *Command, args []string, s *discordgo.Session, m *discordgo.MessageCreate) error {
+		if len(args) < min || len(args) > max {
+			return fmt.Errorf("command accepts between %d and %d arg(s), recieved %d", min, max, len(args))
+		}
+		return nil
+	}
 }
 
 func (c *Command) resetFlags() {

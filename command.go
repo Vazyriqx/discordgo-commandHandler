@@ -30,6 +30,8 @@ type flagsMutex struct {
 
 type RunE func(cmd *Command, args []string, s *discordgo.Session, m *discordgo.MessageCreate) error
 
+type ArgsValidator func(cmd *Command, args []string, s *discordgo.Session, m *discordgo.MessageCreate) error
+
 type Command struct {
 	// the bots prefix. This should only be set for the root command.
 	Prefix byte
@@ -49,14 +51,9 @@ type Command struct {
 	// Full discription of the command.
 	LongDesc string
 
-	// number of args a message should have
-	ExactArgs int
-
-	// min
-	MinArgs int
-
-	// max args a command should have
-	MaxArgs int
+	// Expected number of args:
+	// use commandHander.NoArgs(), .ExactArgs(n), .MinimumArgs(n), .MaximumArgs(n) RangeArgs(min, max)
+	Args func(cmd *Command, args []string, s *discordgo.Session, m *discordgo.MessageCreate) error
 
 	// The embed shown to a user when --help or -h flag is added.
 	// The Embed is generated automatically as long command Use and long desc are added.
