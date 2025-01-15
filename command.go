@@ -52,7 +52,7 @@ type Command struct {
 	// number of args a message should have
 	ExactArgs int
 
-	// min https://discord.gg/dVFqNhXc
+	// min
 	MinArgs int
 
 	// max args a command should have
