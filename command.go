@@ -118,7 +118,7 @@ func (c *Command) AddAliases(aliases ...string) {
 	c.aliases = aliases
 }
 
-// Helper function to determin if a string slice contains and item
+// Helper function to determine if a string slice contains and item
 func contains(slice []string, s string) bool {
 	for _, a := range slice {
 		if strings.EqualFold(a, s) {
